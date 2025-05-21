@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block content %}
 
 <h3>Chat with 
@@ -10,41 +9,57 @@
     {% endif %}
 </h3>
 
-<textarea id="chat-messages" rows="20" cols="100" readonly>
-{% for message in messages %}
-{{ message.sender.username }}: {{ message.content }}
-{% endfor %}
-</textarea><br>
+<!-- Chat message area -->
+<textarea id="chat-messages" rows="20" cols="100" readonly style="margin-bottom: 10px;"></textarea><br>
 
-<input id="chat-message-input" type="text" size="100">
-<button id="chat-message-submit">Send</button>
+<!-- Message input -->
+<form id="chat-form" method="post">
+    {% csrf_token %}
+    <input id="chat-message-input" type="text" name="message" size="100" autocomplete="off" placeholder="Type your message">
+    <button type="submit">Send</button>
+</form>
 
 <script>
-    const roomName = "{{ room.id }}";
-    const chatSocket = new WebSocket(
-        'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
-    );
+    const roomId = "{{ room.id }}";
+    const chatBox = document.getElementById('chat-messages');
+    const messageInput = document.getElementById('chat-message-input');
+    const form = document.getElementById('chat-form');
 
-    chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        const messageBox = document.querySelector('#chat-messages');
-        messageBox.value += data.sender + ": " + data.message + "\n";
-    };
+    // Fetch messages from server
+    function fetchMessages() {
+        fetch(`/chat/room/${roomId}/messages/`)
+            .then(response => response.json())
+            .then(data => {
+                chatBox.value = '';
+                data.forEach(msg => {
+                    chatBox.value += `${msg.user}:- ${msg.message}\n`;
+                });
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+    }
 
-    chatSocket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly');
-    };
+    // Submit message
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        if (message === '') return;
 
-    document.querySelector('#chat-message-submit').onclick = function(e) {
-        const messageInputDom = document.querySelector('#chat-message-input');
-        const message = messageInputDom.value;
-        if (message.trim() !== '') {
-            chatSocket.send(JSON.stringify({
-                'message': message
-            }));
-            messageInputDom.value = '';
-        }
-    };
+        const formData = new FormData(form);
+        fetch(`/chat/room/${roomId}/send/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        }).then(() => {
+            messageInput.value = '';
+            fetchMessages(); // Refresh chat
+        });
+    });
+
+    // Poll messages every 2 seconds
+    setInterval(fetchMessages, 2000);
+    fetchMessages(); // Initial load
 </script>
 
 {% endblock %}

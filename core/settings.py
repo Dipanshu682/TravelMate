@@ -11,9 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os
-import redis
 from pathlib import Path
-from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-j11b9xr2h+^d&on3*&2o!mhfkpde%7dw782+i1q$1z%#5u=^eh'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -40,10 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     'users',
     'profiles',
     'trips',
-    'channels',
     'chat',
 ]
 
@@ -77,22 +75,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-ASGI_APPLICATION = 'core.asgi.application'
+# ASGI_APPLICATION = 'core.asgi.application'
 
-redis_url = os.getenv("REDIS_URL")
+# redis_url = os.getenv("REDIS_URL")
 
-parsed_redis = urlparse(redis_url)
+# parsed_redis = urlparse(redis_url)
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [(parsed_redis.hostname, parsed_redis.port)],
-            "password": parsed_redis.password,
-            "ssl": True,
-        },
-    },
-}
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [(parsed_redis.hostname, parsed_redis.port)],
+#             "password": parsed_redis.password,
+#             "ssl": True,
+#         },
+#     },
+# }
 
 
 
@@ -148,9 +146,9 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # used in production (collectstatic)
 
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'static'),
-# ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
