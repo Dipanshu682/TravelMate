@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="text-center">Explore Trip Preferences</h2>
+<div class="list-group">
+  {% for trip in trip_preferences %}
+    <div class="list-group-item list-group-item-action">
+      <div class="media">
+        <div class="media-body">
+          <h5 class="mt-0">
+            <a href="{% url 'profile' trip.user.username %}">{{ trip.user.username }}</a>
+          </h5>
+          <p>Destination: {{ trip.destination }} | Date: {{ trip.date|date:"d M Y" }}</p>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

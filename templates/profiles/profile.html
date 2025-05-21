@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row align-items-start">
+    
+    <!-- Profile Picture on the Left -->
+    <div class="col-md-4 text-center">
+      <img 
+        src="{% if user_profile.profile_picture %}{{ user_profile.profile_picture.url }}{% else %}{{ MEDIA_URL }}profile_pics/default.jpg{% endif %}" 
+        alt="Profile Picture" 
+        class="img-fluid rounded-circle border" 
+        style="max-width: 200px;"
+      >
+    </div>
+
+    <!-- Profile Details on the Right -->
+    <div class="col-md-8">
+      <h2>{{ user_profile.user.username }}'s Profile</h2>
+      <p><strong>Username:</strong> {{ user_profile.user.username }}</p>
+      <p><strong>Email:</strong> {{ user_profile.user.email }}</p>
+      <p><strong>Full Name:</strong> {{ user_profile.name }}</p>
+      <p><strong>Age:</strong> {{ user_profile.age }}</p>
+      <p><strong>Gender:</strong> {{ user_profile.gender }}</p>
+      <p><strong>Location:</strong> {{ user_profile.location }}</p>
+      <p><strong>Bio:</strong> {{ user_profile.bio }}</p>
+
+      {% if user == user_profile.user %}
+        <a href="{% url 'edit_profile' %}" class="btn btn-primary mt-3">Edit Profile</a>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load chat_extras %}
+
+{% block content %}
+<h2 class="text-center">Matches</h2>
+
+{% if trip_preferences %}
+    <div class="list-group">
+        {% for match in trip_preferences %}
+            <div class="list-group-item list-group-item-action">
+                <div class="media">
+                    <div class="media-body">
+                        <h5 class="mt-0">
+                            <a href="{% url 'profile' match.user.username %}">{{ match.user.username }}</a>
+                        </h5>
+                        <p>Destination: {{ match.destination }} | Date: {{ match.date|date:"d M Y" }}</p>
+
+                        <!-- Chat Invite Section -->
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Chat</h5>
+                                {% if user.is_authenticated %}
+                                    {% with chat_room=match.user|chat_room_with:user %}
+                                        {% if chat_room %}
+                                            <a href="{% url 'chat_room' chat_room.id %}" class="btn btn-primary btn-sm">Continue Chat</a>
+                                        {% else %}
+                                            <form action="{% url 'send_invite' match.user.id %}" method="post">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success btn-sm">Invite to Chat</button>
+                                            </form>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% else %}
+                                    <p>You need to be logged in to chat. <a href="{% url 'login' %}">Log in</a></p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <!-- End Chat Invite Section -->
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-center">No matches found. Try updating your trip preferences.</p>
+{% endif %}
+
+{% endblock %}

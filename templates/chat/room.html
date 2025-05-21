@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Chat with 
+    {% if request.user == room.user2 %}
+        {{ room.user1.username }}
+    {% else %}
+        {{ room.user2.username }}
+    {% endif %}
+</h3>
+
+<textarea id="chat-messages" rows="20" cols="100" readonly>
+{% for message in messages %}
+{{ message.sender.username }}: {{ message.content }}
+{% endfor %}
+</textarea><br>
+
+<input id="chat-message-input" type="text" size="100">
+<button id="chat-message-submit">Send</button>
+
+<script>
+    const roomName = "{{ room.id }}";
+    const chatSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const messageBox = document.querySelector('#chat-messages');
+        messageBox.value += data.sender + ": " + data.message + "\n";
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.querySelector('#chat-message-submit').onclick = function(e) {
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+        if (message.trim() !== '') {
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
+        }
+    };
+</script>
+
+{% endblock %}

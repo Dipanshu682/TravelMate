@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="text-center">Your Trip Preferences</h2>
+
+{% if trip_preferences %}
+  <div class="list-group">
+    {% for preference in trip_preferences %}
+      <div class="list-group-item">
+        <h5>Destination: {{ preference.destination }}</h5>
+        <p>Date: {{ preference.date|date:"d M Y" }}</p>
+        <a href="{% url 'edit_trip_preference' preference.pk %}" class="btn btn-primary mt-3">Edit</a>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>You haven't set any trip preferences yet. <a href="{% url 'create_trip_preference' %}">Create one now!</a></p>
+{% endif %}
+{% endblock %}
