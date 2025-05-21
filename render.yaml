@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: travelmate-web
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn core.asgi:application -k uvicorn.workers.UvicornWorker
+    autoDeploy: true
+
+  - type: redis
+    name: travelmate-redis
+    plan: free
